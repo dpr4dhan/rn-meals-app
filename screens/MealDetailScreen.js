@@ -1,18 +1,27 @@
 import {View, Text, Image, StyleSheet,ScrollView } from "react-native";
 import {MEALS} from "../data/dummy-data";
 import MealDetails from "../components/MealDetails";
-import {useLayoutEffect} from "react";
+import {useContext, useLayoutEffect} from "react";
 import Subtitle from "../components/MealDetail/Subtitle";
 import List from "../components/MealDetail/List";
 import IconButton from "../components/IconButton";
+import {FavouritesContext} from "../store/context/favourites-context";
 
 export default function MealDetailScreen({route, navigation})
 {
+    const favMealCtx = useContext(FavouritesContext);
     const mealId = route.params.mealId;
     const selectedMeal = MEALS.find((meal) => meal.id === mealId );
 
+    const mealIsFavourite = favMealCtx.ids.includes(mealId);
+
     function selectedFavHandler()
     {
+        if(mealIsFavourite){
+            favMealCtx.removeFavourite(mealId);
+        }else{
+            favMealCtx.addFavourite(mealId);
+        }
         console.log('here');
     }
 
@@ -26,7 +35,7 @@ export default function MealDetailScreen({route, navigation})
         navigation.setOptions({
             title: selectedMeal.title,
             headerRight: () => {
-                return <IconButton icon="md-star" size={24} color="white" onPress={selectedFavHandler}/>
+                return <IconButton icon={mealIsFavourite ? 'star' : 'star-outline'} size={24} color="white" onPress={selectedFavHandler}/>
             }
         })
     }, [navigation, selectedFavHandler])
